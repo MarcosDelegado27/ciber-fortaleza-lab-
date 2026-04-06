@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 5000
 
 # Comando para arrancar la app (ajusta la ruta si tu archivo principal se llama distinto)
-CMD ["python", "src/main/python/main.py"]
+CMD ["python", "main.py"]
