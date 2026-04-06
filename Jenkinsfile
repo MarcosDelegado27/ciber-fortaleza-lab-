@@ -18,7 +18,7 @@ pipeline {
             steps {
                 echo 'Iniciando auditoría de calidad con PyBuilder...'
                 // MODIFICACIÓN 1: Usamos pyb para garantizar el 100% de cobertura
-                sh 'pip install pybuilder'
+                sh 'pip install pybuilder --break-system-packages'
                 sh 'pyb'
             }
         }
