@@ -1,52 +1,52 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "bioguard-app"
-        CONTAINER_NAME = "bioguard-container"
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Checkout (Ingredientes)') {
             steps {
-                // Descarga el código de tu GitHub
+                echo 'Descargando el código de BioGuard Project...'
                 checkout scm
             }
         }
 
-        stage('Test & QA (PyBuilder)') {
+        stage('Build (Cocinar)') {
             steps {
-                echo 'Iniciando auditoría de calidad con PyBuilder...'
-                // MODIFICACIÓN 1: Usamos pyb para garantizar el 100% de cobertura
-                sh 'pip install pybuilder --break-system-packages'
-                sh 'pyb'
+                echo 'Cocinando la imagen Docker de la aplicación...'
+                // Se construye la imagen con el nombre del nuevo proyecto
+                sh 'docker build -t bioguard-app .'
             }
         }
 
-        stage('Build Image') {
+        stage('Test (Control de Calidad)') {
             steps {
-                echo 'Construyendo imagen de Docker...'
-                sh "docker build -t ${IMAGE_NAME} ."
+                echo 'Ejecutando auditoría de calidad con PyBuilder...'
+                // MODIFICACIÓN CISO: Se cambia 'python test.py' por 'pyb' 
+                // para usar el motor de PyBuilder de la Fase 2
+                sh 'docker run --rm bioguard-app pyb'
             }
         }
 
-        stage('Deploy Seguro') {
+        stage('Deploy (Entrega)') {
             steps {
-                echo 'Desplegando en puerto seguro 8443...'
-                // Limpiamos contenedores previos si existen
-                sh "docker rm -f ${CONTAINER_NAME} || true"
-                // MODIFICACIÓN 2: Puerto seguro 8443 mapeado al 5000 interno
-                sh "docker run -d -p 8443:5000 --name ${CONTAINER_NAME} ${IMAGE_NAME}"
+                echo 'Desplegando en Producción segura...'
+                sh 'docker rm -f bioguard-prod || true'
+                // MODIFICACIÓN CISO: Se cambia el puerto de -p 5000:5000 a -p 8443:5000
+                sh 'docker run -d --name bioguard-prod -p 8443:5000 bioguard-app'
+                echo '¡Sistema desplegado en puerto seguro: http://localhost:8443!'
             }
         }
     }
 
     post {
+        always {
+            echo 'Limpiando el entorno de construcción...'
+            sh 'docker image prune -f'
+        }
         success {
-            echo '¡Operación Ciber-Fortaleza: Fase 3 Completada con éxito!'
+            echo '🎉 ¡Operación Ciber-Fortaleza: Pipeline completado con éxito!'
         }
         failure {
-            echo 'El build ha fallado. Revisa la cobertura de PyBuilder o los logs de Docker.'
+            echo '🚑 ¡ALERTA DE SEGURIDAD! El pipeline ha fallado. Revisa los tests de PyBuilder.'
         }
     }
 }
